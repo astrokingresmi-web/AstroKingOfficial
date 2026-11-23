@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASTROKING | Uzayın Hakimi</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4facfe">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Temel Sıfırlama */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #030616;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- GELİŞMİŞ ARKA PLAN KATMANLARI --- */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            pointer-events: none;
+        }
+
+        .bg-nebula {
+            background: 
+                radial-gradient(circle at 15% 30%, rgba(0, 80, 255, 0.25), transparent 40%),
+                radial-gradient(circle at 85% 70%, rgba(255, 0, 150, 0.15), transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.08), transparent 50%),
+                #030616;
+        }
+
+        .bg-stars {
+            background-image: 
+                radial-gradient(1.5px 1.5px at 20px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #4facfe, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 160px 120px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 200px 50px, #ffd700, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 300px 150px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 350px 80px, #fff, rgba(0,0,0,0));
+            background-size: 400px 400px;
+            animation: starsMove 120s linear infinite;
+            opacity: 0.8;
+        }
+
+        .bg-twinkle {
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIxIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjYiLz48Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNTAiIHI9IjIiIGZpbGw9IiNmZmQ3MDAiIG9wYWNpdHk9IjAuNCIvPjxjaXJjbGUgY3g9IjM1MCIgY3k9IjMwMCIgcj0iMS41IiBmaWxsPSIjNGZhY2ZlIiBvcGFjaXR5PSIwLjUiLz48Y2lyY2xlIGN4PSI0MDAiIGN5PSI4MCIgcj0iMSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC44Ii8+PC9zdmc+');
+            background-size: cover;
+            animation: twinkle 4s infinite alternate;
+        }
+
+        @keyframes starsMove {
+            from { background-position: 0 0; }
+            to { background-position: 400px 400px; }
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.9; }
+        }
+
+        /* Navigasyon */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(3, 6, 22, 0.75);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(79, 172, 254, 0.2);
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #4facfe, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #b3c6e7;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ffd700;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Bölümü */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 20px 60px;
+            position: relative;
+        }
+
+        /* LOGO ALANI */
+        .hero-logo-img {
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 30px rgba(79, 172, 254, 0.5), 0 0 60px rgba(255, 215, 0, 0.2);
+            animation: floatLogo 4s ease-in-out infinite;
+            background: rgba(3, 6, 22, 0.5);
+        }
+
+        @keyframes floatLogo {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff, #4facfe, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 25px rgba(79, 172, 254, 0.5));
+            letter-spacing: 5px;
+            animation: glowText 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowText {
+            from { filter: drop-shadow(0 0 15px rgba(79, 172, 254, 0.4)); }
+            to { filter: drop-shadow(0 0 35px rgba(255, 215, 0, 0.6)); }
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            color: #b3c6e7;
+            max-width: 750px;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 35px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #0044ff, #00aaff);
+            color: #fff;
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #ffd700;
+            border-color: #ffd700;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Bölümler */
+        section {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .section-title span {
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Hakkımızda */
+        .about-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            text-align: center;
+            max-width: 850px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(79, 172, 254, 0.15);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .about-content p {
+            font-size: 1.2rem;
+            color: #c7d6f0;
+        }
+
+        /* Özellikler (Neler Sunuyoruz) */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: rgba(10, 20, 40, 0.6);
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            border-radius: 18px;
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #4facfe, #ffd700, transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-12px);
+            border-color: #ffd700;
+            box-shadow: 0 15px 40px rgba(0, 102, 255, 0.25);
+            background: rgba(15, 30, 60, 0.8);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+        }
+
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: #4facfe;
+            letter-spacing: 1px;
+        }
+
+        .feature-card p {
+            color: #b3c6e7;
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        /* Oyunlar Kartı İçin Özel Buton */
+        .game-btn {
+            margin-top: auto;
+            padding: 10px 30px;
+            font-size: 0.9rem;
+            background: linear-gradient(45deg, #1a0033, #330066);
+            border: 2px solid #4facfe;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .game-btn:hover {
+            background: linear-gradient(45deg, #330066, #4facfe);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
+            transform: scale(1.05);
+        }
+
+        /* Bize Katıl */
+        .join-section {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 68, 255, 0.1), rgba(255, 215, 0, 0.05));
+            border-radius: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 70px 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(0, 68, 255, 0.1);
+        }
+
+        .join-section p {
+            font-size: 1.3rem;
+            color: #c7d6f0;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* E-posta Gösterim Alanı */
+        .email-display {
+            margin-top: 30px;
+            padding: 10px;
+            font-size: 1.15rem;
+            color: #b3c6e7;
+        }
+
+        .email-display a {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .email-display a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(79, 172, 254, 0.15);
+            color: #5a7c9e;
+            font-size: 0.95rem;
+            background: rgba(3, 6, 22, 0.5);
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
+        }
+
+        footer a {
+            color: #4facfe;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: #ffd700;
+        }
+
+        /* Mobil Uyumluluk */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+                letter-spacing: 3px;
+            }
+
+            .hero-logo-img {
+                width: 160px;
+                height: 160px;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 0.85rem;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero-buttons {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .about-content {
+                padding: 25px;
+            }
+
+            .join-section {
+                padding: 50px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Arka Plan Katmanları -->
+    <div class="bg-layer bg-nebula"></div>
+    <div class="bg-layer bg-stars"></div>
+    <div class="bg-layer bg-twinkle"></div>
+
+    <!-- Navigasyon -->
+    <nav>
+        <div class="nav-logo">ASTROKING</div>
+        <div class="nav-links">
+            <a href="#hakkinda">Hakkımızda</a>
+            <a href="#ozellikler">Neler Sunuyoruz?</a>
+            <a href="#katil">Bize Katıl</a>
+        </div>
+    </nav>
+
+    <!-- Hero Bölümü -->
+    <div class="hero" id="anasayfa">
+        <img src="logo.png" alt="AstroKing Logo" class="hero-logo-img">
+        
+        <h1>ASTROKING</h1>
+        <p>Uzayın derinliklerinde hüküm sürmeye hazır mısın? Topluluğumuza katıl, turnuvalara katıl ve efsane ol.</p>
+        <div class="hero-buttons">
+            <a href="#katil" class="btn btn-primary">Hemen Katıl</a>
+            <button onclick="installPWA()" class="btn btn-secondary">📱 Uygulamayı İndir</button>
+        </div>
+    </div>
+
+    <!-- Hakkımızda -->
+    <section id="hakkinda">
+        <h2 class="section-title">Hakkımızda</h2>
+        <div class="about-content">
+            <p>AstroKing, uzay temalı oyunlar ve etkinlikler etrafında şekillenen, tutkulu bir oyuncu topluluğudur. Amacımız, Car Parking Multiplayer başta olmak üzere çeşitli oyunlarda eğlenceli turnuvalar düzenlemek, adil bir rekabet ortamı sunmak ve oyuncuların yeteneklerini sergileyebileceği bir platform oluşturmaktır.</p>
+            <p>Taçlı logomuz, topluluğumuzun lider ruhunu ve her zaman en iyi olma hedefini simgeler. İster deneyimli bir oyuncu ol, ister yeni başlayan; AstroKing'de senin için bir yer var.</p>
+        </div>
+    </section>
+
+    <!-- Neler Sunuyoruz -->
+    <section id="ozellikler">
+        <h2 class="section-title">Neler <span>Sunuyoruz?</span></h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🏆</span>
+                <h3>Turnuvalar</h3>
+                <p>Düzenli olarak düzenlenen heyecan dolu turnuvalarla yeteneklerini kanıtla ve ödüller kazan.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🚀</span>
+                <h3>Özel Etkinlikler</h3>
+                <p>Sadece topluluğumuza özel, sürprizlerle dolu etkinlikler ve oyun geceleri.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">👑</span>
+                <h3>Liderlik Tablosu</h3>
+                <p>Kazandığın puanlarla liderlik tablosunda yüksel ve AstroKing unvanını kazan.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🤝</span>
+                <h3>Takım Ruhu</h3>
+                <p>Takım arkadaşlarınla strateji kur, birlikte oyna ve dostluklar kur.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔐</span>
+                <h3>Üyelik Sistemi</h3>
+                <p>Hemen ücretsiz hesap oluştur, topluluğa katıl ve ayrıcalıklardan yararlan!</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📱</span>
+                <h3>Uygulamayı İndir</h3>
+                <p>AstroKing'i telefonuna kur, tam ekran deneyim yaşa ve çevrimdışı bile kullan!</p>
+            </div>
+            
+            <!-- OYUNLARIMIZ KARTI -->
+            <div class="feature-card">
+                <span class="feature-icon">🎮</span>
+                <h3>Oyunlarımız</h3>
+                <p>AstroKing bünyesindeki özel oyunlarımızı keşfet ve eğlenceye katıl!</p>
+                <a href="santranc.html" class="game-btn">♟️ Satranç</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bize Katıl -->
+    <section id="katil">
+        <div class="join-section">
+            <h2 class="section-title">Bize <span>Katıl</span></h2>
+            <p>AstroKing ailesinin bir parçası olmak için sosyal medya hesaplarımızı takip et ve topluluğumuza katıl!</p>
+            <div class="social-links">
+                <a href="https://www.youtube.com/@KingCraftMc-01" target="_blank" class="btn btn-primary">▶ YouTube</a>
+                <a href="https://www.instagram.com/astrokingofficiall?stkn=ejR5czd5cnJieWUz" target="_blank" class="btn btn-secondary">📸 Instagram</a>
+            </div>
+            <div class="email-display">
+                <p>Bize ulaşmak için: <a href="mailto:astrokingresmi@gmail.com">astrokingresmi@gmail.com</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 AstroKing. Tüm Hakları Saklıdır. | İletişim: <a href="mailto:astrokingresmi@gmail.com">astrokingresmi@gmail.com</a></p>
+    </footer>
+
+    <script>
+        // PWA (Aşamalı Web Uygulaması) Kurulum Mantığı
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Kullanıcı uygulamayı yükledi');
+                    } else {
+                        console.log('Kullanıcı uygulamayı yüklemeyi reddetti');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert("Uygulama şu anda indirilemiyor. Lütfen tarayıcınızın 'Ana Ekrana Ekle' özelliğini kullanın veya daha sonra tekrar deneyin.");
+            }
+        }
+
+        // Service Worker Kaydı
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker başarıyla kaydedildi:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker kaydı başarısız:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "AstroKing",
+  "short_name": "AstroKing",
+  "description": "Uzayın Hakimi - Oyun Topluluğu",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030616",
+  "theme_color": "#4facfe",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
